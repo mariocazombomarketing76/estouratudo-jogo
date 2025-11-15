@@ -66,13 +66,6 @@ const App: React.FC = () => {
         }
     }, []);
     
-    // Effect to navigate to result screen once stats are available
-    useEffect(() => {
-        if (lastGameStats && currentScreen !== Screen.Result) {
-            setCurrentScreen(Screen.Result);
-        }
-    }, [lastGameStats, currentScreen]);
-    
     const initAudioContext = () => {
         if (audioContext) {
             if (audioContext.state === 'suspended') {
@@ -236,7 +229,8 @@ const App: React.FC = () => {
         if (updatedPlayer) {
             StorageService.updateNeighborhoodStats(player.neighborhood, stats.score);
             setPlayer(updatedPlayer);
-            setLastGameStats(stats); // This will trigger the useEffect to change screen
+            setLastGameStats(stats);
+            setCurrentScreen(Screen.Result);
         } else {
             console.error("Failed to update player stats. Returning to welcome screen.");
             setCurrentScreen(Screen.Welcome);
