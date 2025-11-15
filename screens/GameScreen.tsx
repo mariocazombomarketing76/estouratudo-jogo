@@ -47,7 +47,8 @@ const GameScreen: React.FC<{ onGameEnd: (stats: GameStats) => void }> = ({ onGam
     maxComboRef.current = maxCombo;
 
     const elapsedTime = GAME_DURATION - timeLeft;
-    const difficulty = Math.floor(elapsedTime / 20) + 1;
+    // Difficulty now increases gradually as a float, and at a slower pace.
+    const difficulty = (elapsedTime / 45) + 1;
     const isFrenzy = timeLeft <= 10;
     
     const spawnGameObject = useCallback(() => {
@@ -185,7 +186,8 @@ const GameScreen: React.FC<{ onGameEnd: (stats: GameStats) => void }> = ({ onGam
                             top: obj.y,
                             width: obj.size,
                             height: obj.size,
-                            background: `radial-gradient(circle, ${obj.color} 50%, transparent 100%)`,
+                            backgroundImage: `radial-gradient(circle, ${obj.color} 50%, transparent 100%)`,
+                            backgroundColor: 'transparent', // Ensures the whole div is clickable
                             boxShadow: `0 0 15px ${obj.color}`,
                             transform: 'translateZ(0)',
                         }}

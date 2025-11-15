@@ -66,6 +66,13 @@ const App: React.FC = () => {
         }
     }, []);
     
+    // Effect to navigate to result screen once stats are available
+    useEffect(() => {
+        if (lastGameStats && currentScreen !== Screen.Result) {
+            setCurrentScreen(Screen.Result);
+        }
+    }, [lastGameStats, currentScreen]);
+    
     const initAudioContext = () => {
         if (audioContext) {
             if (audioContext.state === 'suspended') {
@@ -225,13 +232,11 @@ const App: React.FC = () => {
     const handleGameEnd = (stats: GameStats) => {
         if (!player) return;
 
-        setLastGameStats(stats);
-
         const updatedPlayer = StorageService.updatePlayerStats(player.id, stats.score);
         if (updatedPlayer) {
             StorageService.updateNeighborhoodStats(player.neighborhood, stats.score);
             setPlayer(updatedPlayer);
-            setCurrentScreen(Screen.Result);
+            setLastGameStats(stats); // This will trigger the useEffect to change screen
         } else {
             console.error("Failed to update player stats. Returning to welcome screen.");
             setCurrentScreen(Screen.Welcome);
@@ -243,30 +248,54 @@ const App: React.FC = () => {
         setPlayer(newPlayer);
     };
 
+    const handlePlayAgain = () => {
+        setLastGameStats(null);
+        setCurrentScreen(Screen.Game);
+    };
+
+    const handleBackToWelcome = () => {
+        setLastGameStats(null);
+        setCurrentScreen(Screen.Welcome);
+    };
+    
+    const handleShowRanking = () => {
+        setCurrentScreen(Screen.Ranking);
+    };
+    
+    const handleBackFromRanking = () => {
+        // Go back to result screen if there are stats, otherwise go to welcome
+        if (lastGameStats) {
+            setCurrentScreen(Screen.Result);
+        } else {
+            setCurrentScreen(Screen.Welcome);
+        }
+    };
+
     const renderScreen = () => {
         switch (currentScreen) {
             case Screen.Game:
                 return <GameScreen onGameEnd={handleGameEnd} />;
             case Screen.Result:
                  if (!lastGameStats || !player) {
-                    setCurrentScreen(Screen.Welcome);
+                    // This should not happen with the new flow, but as a fallback:
                     return null;
                 }
                 return <ResultScreen 
                             stats={lastGameStats} 
                             player={player} 
-                            onPlayAgain={() => setCurrentScreen(Screen.Game)} 
-                            onShowRanking={() => setCurrentScreen(Screen.Ranking)}
+                            onPlayAgain={handlePlayAgain} 
+                            onShowRanking={handleShowRanking}
+                            onBackToWelcome={handleBackToWelcome}
                         />;
             case Screen.Ranking:
-                return <RankingScreen onBack={() => setCurrentScreen(Screen.Welcome)} currentPlayer={player} />;
+                return <RankingScreen onBack={handleBackFromRanking} currentPlayer={player} />;
             case Screen.Welcome:
             default:
                 return <WelcomeScreen 
                             player={player} 
                             onLogin={handleLogin} 
                             onPlay={() => setCurrentScreen(Screen.Game)} 
-                            onShowRanking={() => setCurrentScreen(Screen.Ranking)}
+                            onShowRanking={handleShowRanking}
                         />;
         }
     };

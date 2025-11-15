@@ -1,6 +1,6 @@
 
 import React, { useEffect, useState } from 'react';
-import { Player, GameStats, NeighborhoodStats } from '../types';
+import { Player, GameStats } from '../types';
 import { StorageService } from '../services/storageService';
 import { useAppContext } from '../App';
 
@@ -9,9 +9,10 @@ interface ResultScreenProps {
     player: Player;
     onPlayAgain: () => void;
     onShowRanking: () => void;
+    onBackToWelcome: () => void;
 }
 
-const ResultScreen: React.FC<ResultScreenProps> = ({ stats, player, onPlayAgain, onShowRanking }) => {
+const ResultScreen: React.FC<ResultScreenProps> = ({ stats, player, onPlayAgain, onShowRanking, onBackToWelcome }) => {
     const [neighborhoodRank, setNeighborhoodRank] = useState<number | null>(null);
     const { playButtonClickSound } = useAppContext();
 
@@ -29,6 +30,11 @@ const ResultScreen: React.FC<ResultScreenProps> = ({ stats, player, onPlayAgain,
     const handleRankingClick = () => {
         playButtonClickSound();
         onShowRanking();
+    }
+
+    const handleBackToWelcomeClick = () => {
+        playButtonClickSound();
+        onBackToWelcome();
     }
 
     return (
@@ -60,6 +66,9 @@ const ResultScreen: React.FC<ResultScreenProps> = ({ stats, player, onPlayAgain,
                 </button>
                 <button onClick={handleRankingClick} className="w-full bg-cyan-500 hover:bg-cyan-600 text-black font-bold py-3 px-4 rounded-lg text-xl transition-transform transform hover:scale-105 shadow-[0_0_15px_rgba(0,234,255,0.8)]">
                     Ver Ranking dos Bairros
+                </button>
+                <button onClick={handleBackToWelcomeClick} className="w-full bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-4 rounded-lg text-xl transition-transform transform hover:scale-105">
+                    Menu Principal
                 </button>
             </div>
             
