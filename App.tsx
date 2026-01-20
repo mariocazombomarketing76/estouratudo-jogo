@@ -229,6 +229,7 @@ const App: React.FC = () => {
         if (updatedPlayer) {
             StorageService.updateNeighborhoodStats(player.neighborhood, stats.score);
             setPlayer(updatedPlayer);
+            // Atomically set stats and change screen to prevent race conditions
             setLastGameStats(stats);
             setCurrentScreen(Screen.Result);
         } else {
@@ -271,7 +272,9 @@ const App: React.FC = () => {
                 return <GameScreen onGameEnd={handleGameEnd} />;
             case Screen.Result:
                  if (!lastGameStats || !player) {
-                    // This should not happen with the new flow, but as a fallback:
+                    // This safeguard should rarely be hit with the new atomic update flow.
+                    console.error("Attempted to render Result screen without stats or player. Redirecting to Welcome.");
+                    setCurrentScreen(Screen.Welcome);
                     return null;
                 }
                 return <ResultScreen 

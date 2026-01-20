@@ -47,8 +47,8 @@ const GameScreen: React.FC<{ onGameEnd: (stats: GameStats) => void }> = ({ onGam
     maxComboRef.current = maxCombo;
 
     const elapsedTime = GAME_DURATION - timeLeft;
-    // Difficulty now increases gradually as a float, and at a slower pace.
-    const difficulty = (elapsedTime / 45) + 1;
+    // Difficulty ramp-up is now significantly slower for a more balanced game start.
+    const difficulty = (elapsedTime / 150) + 1;
     const isFrenzy = timeLeft <= 10;
     
     const spawnGameObject = useCallback(() => {
@@ -180,19 +180,25 @@ const GameScreen: React.FC<{ onGameEnd: (stats: GameStats) => void }> = ({ onGam
                 {gameObjects.map(obj => (
                     <div
                         key={obj.id}
-                        className="absolute rounded-full cursor-pointer"
+                        className="absolute cursor-pointer"
                         style={{
                             left: obj.x,
                             top: obj.y,
                             width: obj.size,
                             height: obj.size,
-                            backgroundImage: `radial-gradient(circle, ${obj.color} 50%, transparent 100%)`,
-                            backgroundColor: 'transparent', // Ensures the whole div is clickable
-                            boxShadow: `0 0 15px ${obj.color}`,
                             transform: 'translateZ(0)',
+                            backgroundColor: 'transparent', // Ensures the entire area is clickable
                         }}
                         onClick={() => handleObjectClick(obj.id)}
-                    />
+                    >
+                        <div
+                           className="w-full h-full rounded-full"
+                           style={{
+                                backgroundImage: `radial-gradient(circle, ${obj.color} 50%, transparent 100%)`,
+                                boxShadow: `0 0 15px ${obj.color}`,
+                           }}
+                        />
+                    </div>
                 ))}
                  {particles.map(p => (
                     <div
